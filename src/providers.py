@@ -1,9 +1,5 @@
-import asyncio
 import logging
-import random
 from abc import ABC, abstractmethod
-from datetime import datetime
-from email.utils import parsedate_to_datetime
 from pathlib import Path
 from typing import Optional
 
@@ -11,6 +7,7 @@ import httpx
 
 from src.config import AppConfig
 from src.models import AvailabilityResult, UsernameStatus, ValidationResult
+from src.time_utils import utc_now
 from src.validator import validate_username
 
 logger = logging.getLogger(__name__)
@@ -176,14 +173,14 @@ class DiscordProvider(AvailabilityProvider):
                         return AvailabilityResult(
                             username=username,
                             status=UsernameStatus.ERROR,
-                            checked_at=datetime.utcnow(),
+                            checked_at=utc_now(),
                             error_message=f"Unexpected response: {data}",
                             provider_metadata={"response": data},
                         )
                     return AvailabilityResult(
                         username=username,
                         status=status,
-                        checked_at=datetime.utcnow(),
+                        checked_at=utc_now(),
                         provider_metadata={"provider": "discord", "response": data},
                     )
 
@@ -192,7 +189,7 @@ class DiscordProvider(AvailabilityProvider):
                     return AvailabilityResult(
                         username=username,
                         status=UsernameStatus.RATE_LIMITED,
-                        checked_at=datetime.utcnow(),
+                        checked_at=utc_now(),
                         error_message=f"Rate limited. Retry after: {retry_after}s",
                         provider_metadata={"status_code": 429, "retry_after": retry_after},
                     )
@@ -201,7 +198,7 @@ class DiscordProvider(AvailabilityProvider):
                     return AvailabilityResult(
                         username=username,
                         status=UsernameStatus.ERROR,
-                        checked_at=datetime.utcnow(),
+                        checked_at=utc_now(),
                         error_message="Invalid token (401)",
                         provider_metadata={"status_code": 401, "token_dead": True},
                     )
@@ -209,7 +206,7 @@ class DiscordProvider(AvailabilityProvider):
                 return AvailabilityResult(
                     username=username,
                     status=UsernameStatus.ERROR,
-                    checked_at=datetime.utcnow(),
+                    checked_at=utc_now(),
                     error_message=f"HTTP {response.status_code}: {response.text}",
                     provider_metadata={"status_code": response.status_code},
                 )
@@ -218,14 +215,14 @@ class DiscordProvider(AvailabilityProvider):
                 return AvailabilityResult(
                     username=username,
                     status=UsernameStatus.ERROR,
-                    checked_at=datetime.utcnow(),
+                    checked_at=utc_now(),
                     error_message="Request timed out",
                 )
             except httpx.RequestError as e:
                 return AvailabilityResult(
                     username=username,
                     status=UsernameStatus.ERROR,
-                    checked_at=datetime.utcnow(),
+                    checked_at=utc_now(),
                     error_message=f"Network error: {e}",
                 )
 
@@ -235,18 +232,10 @@ class DiscordProvider(AvailabilityProvider):
             return AvailabilityResult(
                 username=username,
                 status=UsernameStatus.ERROR,
-                checked_at=datetime.utcnow(),
+                checked_at=utc_now(),
                 error_message="No valid tokens available",
             )
         return await self.check_with_token(username, self._tokens[0])
-
-        return AvailabilityResult(
-            username=username,
-            status=UsernameStatus.RATE_LIMITED,
-            checked_at=datetime.utcnow(),
-            error_message="All tokens rate limited",
-            provider_metadata={"status_code": 429, "retry_after": 5.0},
-        )
 
     def _parse_retry_after(self, response: httpx.Response) -> float:
         header = response.headers.get("Retry-After", "")
@@ -311,7 +300,7 @@ class DiscordWebhookNotifier:
                     "footer": {
                         "text": "Discord Username Checker",
                     },
-                    "timestamp": datetime.utcnow().isoformat(),
+                    "timestamp": utc_now().isoformat(),
                 }
             ]
         }

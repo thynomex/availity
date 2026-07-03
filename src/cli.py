@@ -38,8 +38,6 @@ BANNER_LINES = BANNER_ART.strip("\n").splitlines()
 BANNER_WIDTH = max(len(line) for line in BANNER_LINES)
 BANNER_SUBTITLE = "Made by 9apf."
 
-# --- PLACEHOLDER_CLI_CONTINUE ---
-
 
 def setup_logging(log_path: str):
     Path(log_path).parent.mkdir(parents=True, exist_ok=True)
@@ -247,9 +245,6 @@ def read_menu_choice(username: str, token_count: int, multi: bool) -> str:
             time.sleep(0.08)
 
 
-# --- PLACEHOLDER_CLI_FUNCTIONS ---
-
-
 async def check_single(checker: UsernameChecker, webhook: Optional[DiscordWebhookNotifier] = None):
     console.print(Rule("[cyan]Single Username Check[/cyan]", style="dim"))
     username = console.input("\n  [cyan]>[/cyan] Username: ").strip()
@@ -312,9 +307,6 @@ async def check_from_file(checker: UsernameChecker, config: AppConfig, db: Datab
 
     run_id = str(uuid.uuid4())
     await run_batch_with_progress(checker, usernames, run_id, db, config, webhook)
-
-
-# --- PLACEHOLDER_CLI_GENERATE ---
 
 
 async def generate_by_length(checker: UsernameChecker, config: AppConfig, db: Database, webhook: Optional[DiscordWebhookNotifier] = None):
@@ -407,9 +399,6 @@ async def export_results(config: AppConfig, db: Database):
     exporter = ResultExporter(config, db)
     path = await exporter.export_available_txt(run.run_id)
     console.print(f"\n  [green]Saved:[/green] {path}")
-
-
-# --- PLACEHOLDER_CLI_RESUME ---
 
 
 async def resume_last_run(checker: UsernameChecker, db: Database, config: AppConfig, webhook: Optional[DiscordWebhookNotifier] = None):

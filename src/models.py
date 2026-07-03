@@ -4,6 +4,8 @@ from typing import Optional
 
 from pydantic import BaseModel, Field
 
+from src.time_utils import utc_now
+
 
 class UsernameStatus(str, Enum):
     PENDING = "pending"
@@ -41,7 +43,7 @@ class AvailabilityResult(BaseModel):
 class Candidate(BaseModel):
     username: str
     status: UsernameStatus = UsernameStatus.PENDING
-    created_at: datetime = Field(default_factory=datetime.utcnow)
+    created_at: datetime = Field(default_factory=utc_now)
     checked_at: Optional[datetime] = None
     error_message: Optional[str] = None
     retry_count: int = 0

@@ -5,6 +5,7 @@ from typing import Optional
 import aiosqlite
 
 from src.models import AvailabilityResult, Candidate, RunRecord, UsernameStatus
+from src.time_utils import utc_now
 
 
 class Database:
@@ -83,7 +84,7 @@ class Database:
             """UPDATE candidates
                SET status = ?, checked_at = ?, error_message = ?, retry_count = retry_count + 1
                WHERE username = ? AND run_id = ?""",
-            (status.value, datetime.utcnow().isoformat(), error_message, username, run_id),
+            (status.value, utc_now().isoformat(), error_message, username, run_id),
         )
         await self._conn.commit()
 
@@ -163,7 +164,7 @@ class Database:
     async def create_run(self, run_id: str, total: int):
         await self._conn.execute(
             "INSERT INTO run_history (run_id, started_at, total_candidates) VALUES (?, ?, ?)",
-            (run_id, datetime.utcnow().isoformat(), total),
+            (run_id, utc_now().isoformat(), total),
         )
         await self._conn.commit()
 

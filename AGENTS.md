@@ -15,12 +15,6 @@
 | Full tests | `pytest -q` |
 | Build EXE | `python -m PyInstaller --noconfirm --clean availity.spec` |
 
-## Commit Attribution
-AI commits MUST include:
-```text
-Co-Authored-By: (the agent model's name and attribution byline)
-```
-
 ## Project Shape
 - `src\cli.py`: Rich terminal UI, banner animation, menu flow, startup, export/resume orchestration.
 - `src\checker.py`: async batch processing, retry flow, DB updates, `TokenPool` integration.

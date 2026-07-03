@@ -63,7 +63,7 @@ Do not share your `.env`, `tokens.txt`, database, logs, or output files with buy
 - `File Check`: load usernames from a text file.
 - `Random Generate`: generate random usernames by length and character set.
 - `Dictionary Scan`: check dictionary words as usernames.
-- `Export`: save the latest run as txt, csv, or json.
+- `Export`: save the latest run as a txt file.
 - `Resume`: continue the latest unfinished run.
 - `Settings`: view current configuration.
 - `Exit`: close the app.
@@ -86,9 +86,7 @@ The app writes runtime files locally:
 
 - `data/checker.db`: run history and check results.
 - `logs/app.log`: application log.
-- `output/available.txt`: available usernames found during runs.
-- `output/results.csv`: exported result table.
-- `output/results.json`: exported JSON results.
+- `output/available.txt`: available usernames found during runs and exports.
 
 For a clean release package, include the executable, `.env.example`, `README.md`, and any license or terms file. Do not include your personal `.env`, tokens, logs, database, or prior output.
 

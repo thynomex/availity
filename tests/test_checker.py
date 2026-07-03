@@ -8,8 +8,8 @@ from src.config import AppConfig
 from src.models import AvailabilityResult, Candidate, UsernameStatus, ValidationResult
 from src.providers import AvailabilityProvider
 from src.rate_limiter import RateLimiter, TokenPool
+from src.time_utils import utc_now
 from src.validator import validate_username
-from datetime import datetime
 
 
 class MockProvider(AvailabilityProvider):
@@ -27,12 +27,12 @@ class MockProvider(AvailabilityProvider):
         elif username.startswith("error"):
             return AvailabilityResult(
                 username=username, status=UsernameStatus.ERROR,
-                checked_at=datetime.utcnow(), error_message="Simulated error",
+                checked_at=utc_now(), error_message="Simulated error",
             )
         else:
             status = UsernameStatus.AVAILABLE if random.random() < 0.3 else UsernameStatus.UNAVAILABLE
         return AvailabilityResult(
-            username=username, status=status, checked_at=datetime.utcnow(),
+            username=username, status=status, checked_at=utc_now(),
             provider_metadata={"provider": "mock"},
         )
 
@@ -61,8 +61,8 @@ def mock_db():
     db.add_check = AsyncMock()
     db.update_run = AsyncMock()
     db.get_pending_candidates = AsyncMock(return_value=[
-        Candidate(username="avail.one", created_at=datetime.utcnow()),
-        Candidate(username="taken.two", created_at=datetime.utcnow()),
+        Candidate(username="avail.one", created_at=utc_now()),
+        Candidate(username="taken.two", created_at=utc_now()),
     ])
     return db
 
@@ -105,7 +105,7 @@ class TestUsernameChecker:
 
         usernames = ["avail.one", "taken.two", "avail.three"]
         mock_db.get_pending_candidates = AsyncMock(return_value=[
-            Candidate(username=u, created_at=datetime.utcnow()) for u in usernames
+            Candidate(username=u, created_at=utc_now()) for u in usernames
         ])
 
         results = await checker.check_batch(usernames, "test_run")
@@ -122,7 +122,7 @@ class TestUsernameChecker:
 
         usernames = ["avail.x1", "avail.x2"]
         mock_db.get_pending_candidates = AsyncMock(return_value=[
-            Candidate(username=u, created_at=datetime.utcnow()) for u in usernames
+            Candidate(username=u, created_at=utc_now()) for u in usernames
         ])
 
         await checker.check_batch(usernames, "run1")

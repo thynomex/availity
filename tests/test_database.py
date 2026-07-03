@@ -1,9 +1,8 @@
 import pytest
 
-from src.config import AppConfig
 from src.database import Database
 from src.models import AvailabilityResult, Candidate, UsernameStatus
-from datetime import datetime
+from src.time_utils import utc_now
 
 
 @pytest.fixture
@@ -29,8 +28,8 @@ class TestDatabase:
 
     async def test_add_and_get_candidates(self, db):
         candidates = [
-            Candidate(username="user1", created_at=datetime.utcnow()),
-            Candidate(username="user2", created_at=datetime.utcnow()),
+            Candidate(username="user1", created_at=utc_now()),
+            Candidate(username="user2", created_at=utc_now()),
         ]
         await db.add_candidates(candidates, "run1")
         pending = await db.get_pending_candidates("run1")
@@ -38,7 +37,7 @@ class TestDatabase:
         assert {c.username for c in pending} == {"user1", "user2"}
 
     async def test_update_candidate_status(self, db):
-        candidates = [Candidate(username="testuser", created_at=datetime.utcnow())]
+        candidates = [Candidate(username="testuser", created_at=utc_now())]
         await db.add_candidates(candidates, "run1")
 
         await db.update_candidate("testuser", UsernameStatus.AVAILABLE, None, "run1")
@@ -52,9 +51,9 @@ class TestDatabase:
 
     async def test_get_candidates_by_status(self, db):
         candidates = [
-            Candidate(username="u1", created_at=datetime.utcnow()),
-            Candidate(username="u2", created_at=datetime.utcnow()),
-            Candidate(username="u3", created_at=datetime.utcnow()),
+            Candidate(username="u1", created_at=utc_now()),
+            Candidate(username="u2", created_at=utc_now()),
+            Candidate(username="u3", created_at=utc_now()),
         ]
         await db.add_candidates(candidates, "run1")
         await db.update_candidate("u1", UsernameStatus.AVAILABLE, None, "run1")
@@ -81,7 +80,7 @@ class TestDatabase:
 
     async def test_resume_pending(self, db):
         candidates = [
-            Candidate(username=f"user{i}", created_at=datetime.utcnow())
+            Candidate(username=f"user{i}", created_at=utc_now())
             for i in range(5)
         ]
         await db.add_candidates(candidates, "run1")
@@ -96,7 +95,7 @@ class TestDatabase:
         result = AvailabilityResult(
             username="testuser",
             status=UsernameStatus.AVAILABLE,
-            checked_at=datetime.utcnow(),
+            checked_at=utc_now(),
             provider_metadata={"provider": "mock"},
         )
         await db.add_check(result, "run1")

@@ -1,6 +1,5 @@
 import asyncio
 import uuid
-from datetime import datetime
 from typing import Callable, Optional
 
 from src.config import AppConfig
@@ -8,6 +7,7 @@ from src.database import Database
 from src.models import AvailabilityResult, Candidate, UsernameStatus
 from src.providers import DiscordProvider
 from src.rate_limiter import RateLimiter, TokenPool
+from src.time_utils import utc_now
 from src.validator import validate_username
 
 
@@ -47,12 +47,10 @@ class UsernameChecker:
             return AvailabilityResult(
                 username=username,
                 status=UsernameStatus.INVALID,
-                checked_at=datetime.utcnow(),
+                checked_at=utc_now(),
                 error_message=validation.reason,
             )
         return await self._check_with_retry(username)
-
-# --- PLACEHOLDER_CHECKER_BATCH ---
 
     async def check_batch(
         self,
@@ -67,7 +65,7 @@ class UsernameChecker:
             run_id = str(uuid.uuid4())
 
         candidates = [
-            Candidate(username=u, created_at=datetime.utcnow()) for u in usernames
+            Candidate(username=u, created_at=utc_now()) for u in usernames
         ]
         await self.db.create_run(run_id, len(candidates))
         await self.db.add_candidates(candidates, run_id)
@@ -155,7 +153,7 @@ class UsernameChecker:
         )
 
         if not self._cancelled:
-            await self.db.update_run(run_id, finished_at=datetime.utcnow())
+            await self.db.update_run(run_id, finished_at=utc_now())
 
         return results
 
@@ -168,7 +166,7 @@ class UsernameChecker:
                     return AvailabilityResult(
                         username=username,
                         status=UsernameStatus.ERROR,
-                        checked_at=datetime.utcnow(),
+                        checked_at=utc_now(),
                         error_message="All tokens are dead",
                     )
 
@@ -207,6 +205,6 @@ class UsernameChecker:
         return AvailabilityResult(
             username=username,
             status=UsernameStatus.ERROR,
-            checked_at=datetime.utcnow(),
+            checked_at=utc_now(),
             error_message="Max retries exceeded",
         )
